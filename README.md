@@ -3,8 +3,6 @@
 A monitoring solution for Docker hosts and containers with [Prometheus](https://prometheus.io/), [Grafana](http://grafana.org/), [cAdvisor](https://github.com/google/cadvisor),
 [NodeExporter](https://github.com/prometheus/node_exporter) and alerting with [AlertManager](https://github.com/prometheus/alertmanager).
 
-***If you're looking for the Docker Swarm version please go to [stefanprodan/swarmprom](https://github.com/stefanprodan/swarmprom)***
-
 ## Install
 
 Clone this repository on your Docker host, cd into dockprom directory and run compose up:
@@ -13,7 +11,7 @@ Clone this repository on your Docker host, cd into dockprom directory and run co
 git clone https://github.com/stefanprodan/dockprom
 cd dockprom
 
-ADMIN_USER=admin ADMIN_PASSWORD=admin ADMIN_PASSWORD_HASH=JDJhJDE0JE91S1FrN0Z0VEsyWmhrQVpON1VzdHVLSDkyWHdsN0xNbEZYdnNIZm1pb2d1blg4Y09mL0ZP docker-compose up -d
+ADMIN_USER='admin' ADMIN_PASSWORD='admin' ADMIN_PASSWORD_HASH='$2a$14$1l.IozJx7xQRVmlkEQ32OeEEfP5mRxTpbDTCTcXRqn19gXD8YK1pO' docker-compose up -d
 ```
 
 **Caddy v2 does not accept plaintext passwords. It MUST be provided as a hash value. The above password hash corresponds to ADMIN_PASSWORD 'admin'. To know how to generate hash password, refer [Updating Caddy to v2](#Updating-Caddy-to-v2)**
@@ -87,7 +85,7 @@ The Docker Host Dashboard shows key metrics for monitoring the resource usage of
 * Swap usage and activity graphs
 
 For storage and particularly Free Storage graph, you have to specify the fstype in grafana graph request.
-You can find it in `grafana/dashboards/docker_host.json`, at line 480 :
+You can find it in `grafana/provisioning/dashboards/docker_host.json`, at line 480 :
 
 ```yaml
 "expr": "sum(node_filesystem_free_bytes{fstype=\"btrfs\"})",
@@ -116,6 +114,22 @@ The Docker Containers Dashboard shows key metrics for monitoring running contain
 * Container network outbound usage graph
 
 Note that this dashboard doesn't show the containers that are part of the monitoring stack.
+
+For storage and particularly Storage Load graph, you have to specify the fstype in grafana graph request.
+You can find it in `grafana/provisioning/dashboards/docker_containers.json`, at line 406 :
+
+```yaml
+"expr": "(node_filesystem_size_bytes{fstype=\"btrfs\"} - node_filesystem_free_bytes{fstype=\"btrfs\"}) / node_filesystem_size_bytes{fstype=\"btrfs\"}  * 100"，
+```
+
+I work on BTRFS, so i need to change `aufs` to `btrfs`.
+
+You can find right value for your system in Prometheus `http://<host-ip>:9090` launching this request :
+
+```yaml
+node_filesystem_size_bytes
+node_filesystem_free_bytes
+```
 
 ***Monitor Services Dashboard***
 

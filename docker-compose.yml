@@ -11,7 +11,7 @@ volumes:
 services:
 
   prometheus:
-    image: prom/prometheus:v2.31.1
+    image: prom/prometheus:v2.41.0
     container_name: prometheus
     volumes:
       - ./prometheus:/etc/prometheus
@@ -32,7 +32,7 @@ services:
       org.label-schema.group: "monitoring"
 
   alertmanager:
-    image: prom/alertmanager:v0.23.0
+    image: prom/alertmanager:v0.25.0
     container_name: alertmanager
     volumes:
       - ./alertmanager:/etc/alertmanager
@@ -48,7 +48,7 @@ services:
       org.label-schema.group: "monitoring"
 
   nodeexporter:
-    image: prom/node-exporter:v1.2.2
+    image: prom/node-exporter:v1.5.0
     container_name: nodeexporter
     volumes:
       - /proc:/host/proc:ro
@@ -80,7 +80,7 @@ services:
       org.label-schema.group: "monitoring"
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.43.0
+    image: gcr.io/cadvisor/cadvisor:v0.46.0
     container_name: cadvisor
     privileged: true
     devices:
@@ -100,7 +100,7 @@ services:
       org.label-schema.group: "monitoring"
 
   grafana:
-    image: grafana/grafana:8.2.2
+    image: grafana/grafana:9.3.2
     container_name: grafana
     volumes:
       - grafana_data:/var/lib/grafana
@@ -119,7 +119,7 @@ services:
       org.label-schema.group: "monitoring"
 
   pushgateway:
-    image: prom/pushgateway:v1.4.2
+    image: prom/pushgateway:v1.5.1
     container_name: pushgateway
     restart: unless-stopped
     expose:
@@ -130,10 +130,11 @@ services:
       org.label-schema.group: "monitoring"
 
   caddy:
-    image: caddy:2.3.0
+    image: caddy:2.6.2
     container_name: caddy
     ports:
       - "3000:3000"
+      - "8080:8080"
       - "9090:9090"
       - "9093:9093"
       - "9091:9091"
@@ -142,7 +143,7 @@ services:
     environment:
       - ADMIN_USER=${ADMIN_USER:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
-      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:-JDJhJDE0JE91S1FrN0Z0VEsyWmhrQVpON1VzdHVLSDkyWHdsN0xNbEZYdnNIZm1pb2d1blg4Y09mL0ZP}
+      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:-$2a$14$1l.IozJx7xQRVmlkEQ32OeEEfP5mRxTpbDTCTcXRqn19gXD8YK1pO}
     restart: unless-stopped
     networks:
       - monitor-net
